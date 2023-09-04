@@ -1,0 +1,52 @@
+image: fedora:rawhide
+stages:
+  - build
+  - deploy
+
+variables:
+  DEPENDENCIES:
+    glib2-devel
+    pkgconfig(systemd)
+    meson
+    gcc
+    gtk-doc
+    git
+    clang
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'push'
+
+.build_template: &build
+  before_script:
+    - dnf update -y --nogpgcheck && dnf install -y --nogpgcheck $DEPENDENCIES
+  script:
+    # And build with gcc
+    - meson . _build
+    - ninja -C _build
+    - ninja -C _build install
+    - ninja -C _build dist
+    # Build with clang
+    - rm -rf _build
+    - CC=clang meson . _build
+    - ninja -C _build
+
+build:
+  stage: build
+  <<: *build
+
+pages:
+   stage: deploy
+   before_script:
+     - dnf update -y --nogpgcheck && dnf install -y --nogpgcheck $DEPENDENCIES
+   script:
+     - export LC_ALL=C.UTF-8
+     - rm -rf public/
+     - meson . _build -Dprefix=/usr
+     - ninja -C _build
+     - ninja -C _build install
+     - mv /usr/share/gtk-doc/html/low-memory-monitor/ public/
+   artifacts:
+     paths:
+     - public
