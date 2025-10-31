@@ -1,0 +1,51 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<node xmlns:doc="http://www.freedesktop.org/dbus/1.0/doc.dtd">
+
+  <!--
+      org.freedesktop.LowMemoryMonitor:
+      @short_description: D-Bus proxy to Linux' memory pressure information
+
+      Unsandboxed applications and desktop-environments can listen for the
+      "LowMemoryWarning" signal to know when they should drop caches, and unnecessary
+      allocated memory so as to reduce their memory usage.
+
+      The object path will be "/org/freedesktop/LowMemoryMonitor".
+  -->
+    <interface name="org.freedesktop.LowMemoryMonitor">
+
+    <!--
+        LowMemoryWarning:
+        @level: An integer representing the level of low memory warning.
+
+        Signal emitted when a particular low memory situation happens. The valid level values go from
+        0 to 255, but only certain values are currently used. The higher the number, the more urgent
+        the warning is. Currently used levels are:
+        <variablelist>
+          <varlistentry>
+            <term>50</term>
+            <listitem><para>
+              Memory on the device is low, processes should free up unneeded resources so they can be used elsewhere.
+            </para></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>100</term>
+            <listitem><para>
+              The device has even less free memory, so processes should try harder to free up unneeded resources. If your process does not need to stay running, it is a good time for it to quit.
+            </para></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>255</term>
+            <listitem><para>
+              The system will start terminating processes to reclaim memory, including background processes.
+            </para></listitem>
+          </varlistentry>
+        </variablelist>
+    -->
+    <signal name="LowMemoryWarning">
+      <arg name="level" type="y"/>
+    </signal>
+
+  </interface>
+</node>
